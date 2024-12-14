@@ -1,0 +1,48 @@
+- name: Installer Docker et déployer des conteneurs
+  hosts: virtual_machines
+  become: true
+  tasks:
+    - name: Mettre à jour les paquets
+      apt:
+        update_cache: yes
+
+    - name: Installer des dépendances pour Docker
+      apt:
+        name: 
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+
+    - name: Ajouter la clé GPG de Docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Ajouter le dépôt Docker
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Installer Docker
+      apt:
+        name: 
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: latest
+
+    - name: Assurer que Docker est lancé
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Copier le fichier docker-compose.yml
+      copy:
+        src: roles/deploy_docker/files/docker-compose.yml
+        dest: /opt/docker-compose.yml
+
+    - name: Déployer les conteneurs via Docker Compose
+      command: docker-compose -f /opt/docker-compose.yml up -d
