@@ -1,1 +1,1 @@
-# remote_docker_deployment_with_ansible
+# auto_docker_deployment_in_vm's_with_ansible
